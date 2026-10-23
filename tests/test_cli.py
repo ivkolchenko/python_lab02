@@ -1,5 +1,7 @@
 import json
+
 import typer.testing
+
 from src.streamstats.__main__ import app
 
 runner = typer.testing.CliRunner()
@@ -62,6 +64,7 @@ def test_cli_json(tmp_path):
 
     assert len(data) == 1
     assert data[0]["event_count"] == 2
+    assert data[0]["skipped_count"] == 4
     assert data[0]["levels"] == {"INFO": 1, "ERROR": 1}
     assert data[0]["sources"] == {"api": 1, "db": 1}
     assert data[0]["error_sources"] == {"db": 1}

@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import Annotated
 
@@ -15,12 +16,13 @@ def analyze(
         skip_invalid: Annotated[bool, typer.Option("--skip-invalid")] = False):
 
     counter = models.LogStatistics()
+    logger = logging.getLogger(__name__)
 
     try:
         if events_format == "csv":
-            parsers.parse_csv(path, skip_invalid, counter)
+            parsers.parse_csv(path, skip_invalid, counter, logger)
         elif events_format == "jsonl":
-            parsers.parse_json(path, skip_invalid, counter)
+            parsers.parse_json(path, skip_invalid, counter, logger)
         else:
             raise errors.UnsupportedFormat("Неправильный формат файла")
 

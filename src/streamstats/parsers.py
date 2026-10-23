@@ -1,5 +1,6 @@
 import csv
 import json
+import logging
 import os
 from datetime import datetime
 from pathlib import Path
@@ -7,7 +8,7 @@ from pathlib import Path
 from src.streamstats import analysis, errors, models
 
 
-def parse_csv(path: Path, skip_invalid: bool, counter: models.LogStatistics):
+def parse_csv(path: Path, skip_invalid: bool, counter: models.LogStatistics, logger: logging.Logger):
     """Парсер формата CSV: Создание объекта EventModel,
     проверка на ошибки, передача в функцию анализа"""
     try:
@@ -15,17 +16,21 @@ def parse_csv(path: Path, skip_invalid: bool, counter: models.LogStatistics):
             if os.path.getsize(path) == 0:
                 raise errors.CliConfigurationError("Пустой файл")
 
-            for event_data in csv.DictReader(file):
+            for string_number, event_data in enumerate(csv.DictReader(file)):
                 try:
                     time = datetime.fromisoformat(event_data["timestamp"])
 
                     if time.tzinfo is None:
                         if skip_invalid:
+                            logger.warning(f"Пропущена строка {string_number}")
+                            counter.skipped_count += 1
                             continue
                         else:
                             raise errors.InvalidTimestamp("Неверная временная метка")
                 except ValueError:
                     if skip_invalid:
+                        logger.warning(f"Пропущена строка {string_number}")
+                        counter.skipped_count += 1
                         continue
                     else:
                         raise errors.InvalidTimestamp("Неверная временная метка")
@@ -42,6 +47,8 @@ def parse_csv(path: Path, skip_invalid: bool, counter: models.LogStatistics):
                     )
                 except ValueError:
                     if skip_invalid:
+                        logger.warning(f"Пропущена строка {string_number}")
+                        counter.skipped_count += 1
                         continue
                     else:
                         raise errors.InvalidEvent("Неверное событие")
@@ -57,7 +64,7 @@ def parse_csv(path: Path, skip_invalid: bool, counter: models.LogStatistics):
         raise errors.CliConfigurationError("Ошибка кодировки Unicode")
 
 
-def parse_json(path: Path, skip_invalid: bool, counter: models.LogStatistics):
+def parse_json(path: Path, skip_invalid: bool, counter: models.LogStatistics, logger: logging.Logger):
     """Парсер формата JSONL: Создание объекта EventModel,
     проверка на ошибки, передача в функцию анализа"""
     try:
@@ -65,18 +72,22 @@ def parse_json(path: Path, skip_invalid: bool, counter: models.LogStatistics):
             if os.path.getsize(path) == 0:
                 raise errors.CliConfigurationError("Пустой файл")
 
-            for string in file:
+            for string_number, string in enumerate(file):
                 event_data = json.loads(string)
                 try:
                     time = datetime.fromisoformat(event_data["timestamp"])
 
                     if time.tzinfo is None:
                         if skip_invalid:
+                            logger.warning(f"Пропущена строка {string_number}")
+                            counter.skipped_count += 1
                             continue
                         else:
                             raise errors.InvalidTimestamp("Неверная временная метка")
                 except ValueError:
                     if skip_invalid:
+                        logger.warning(f"Пропущена строка {string_number}")
+                        counter.skipped_count += 1
                         continue
                     else:
                         raise errors.InvalidTimestamp("Неверная временная метка")
@@ -93,11 +104,15 @@ def parse_json(path: Path, skip_invalid: bool, counter: models.LogStatistics):
                     )
                 except ValueError:
                     if skip_invalid:
+                        logger.warning(f"Пропущена строка {string_number}")
+                        counter.skipped_count += 1
                         continue
                     else:
                         raise errors.InvalidEvent("Неверное событие")
                 except KeyError:
                     if skip_invalid:
+                        logger.warning(f"Пропущена строка {string_number}")
+                        counter.skipped_count += 1
                         continue
                     else:
                         raise errors.InvalidEvent("Неверное событие")

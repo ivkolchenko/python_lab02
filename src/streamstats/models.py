@@ -15,6 +15,7 @@ class EventModel(BaseModel):
 @dataclass
 class LogStatistics:
     event_count: int = 0
+    skipped_count: int = 0
 
     first_timestamp: datetime|None = None
     last_timestamp: datetime|None = None

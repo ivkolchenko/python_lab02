@@ -6,6 +6,7 @@ from src.streamstats import errors, models
 
 
 def json_report(counter: models.LogStatistics, path: Path):
+    """Создает json отчет, перенося туда данные из counter"""
     if path.suffix != ".json":
         raise errors.CliConfigurationError("Неверный формат выходного файла")
 
