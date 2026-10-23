@@ -1,0 +1,7 @@
+{"timestamp":"2024-06-01T12:00:00+00:00","level":"INFO","source":"api","message":"Started"}
+{"timestamp":"2024-06-01T11:30:00+00:00","level":"DEBUG","source":"worker","message":"Preparing job"}
+{"timestamp":"2024-06-01T15:00:00+03:00","level":"WARNING","source":"api","message":"Slow response, retrying"}
+{"timestamp":"2024-06-01T12:30:00Z","level":"ERROR","source":"db","message":"Connection lost"}
+{"timestamp":"2024-06-01T11:45:00+00:00","level":"CRITICAL","source":"db","message":"Disk full"}
+{"timestamp":"2024-06-01T12:15:00+00:00","level":"ERROR","source":"api","message":"Request failed"}
+{"timestamp":"2024-06-01T12:20:00+00:00","level":"CRITICAL","source":"worker","message":"Сбой задачи"}

@@ -1,18 +1,17 @@
-import typer
 import json
-from src.streamstats import models, errors
+import os
 from pathlib import Path
+
+from src.streamstats import errors, models
+
 
 def json_report(counter: models.LogStatistics, path: Path):
     if path.suffix != ".json":
         raise errors.CliConfigurationError("Неверный формат выходного файла")
 
-    try:
-        file = open(path, "r+", encoding="utf-8")
-    except FileNotFoundError:
-        file = open(path, "w", encoding="utf-8")
+    open_format = "r+" if os.path.exists(path) else "w"
 
-    with file:
+    with open(path, open_format, encoding="utf-8") as file:
         data = ""
         if file.mode == "r+":
             for string in file:

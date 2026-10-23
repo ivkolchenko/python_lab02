@@ -1,0 +1,8 @@
+timestamp,level,source,message
+2024-06-01T12:00:00+00:00,INFO,api,Started
+2024-06-01T11:30:00+00:00,DEBUG,worker,Preparing job
+2024-06-01T15:00:00+03:00,WARNING,api,"Slow response, retrying"
+2024-06-01T12:30:00Z,ERROR,db,Connection lost
+2024-06-01T11:45:00+00:00,CRITICAL,db,Disk full
+2024-06-01T12:15:00+00:00,ERROR,api,Request failed
+2024-06-01T12:20:00+00:00,CRITICAL,worker,—бой задачи

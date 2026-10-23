@@ -1,0 +1,6 @@
+{"timestamp":"2024-06-01T10:00:00+00:00","level":"INFO","source":"api","message":"Accepted"}
+{"timestamp":"2024-06-01T10:05:00","level":"INFO","source":"api","message":"No timezone"}
+{"timestamp":"not-a-timestamp","level":"INFO","source":"api","message":"Bad timestamp"}
+{"timestamp":"2024-06-01T10:10:00+00:00","level":"TRACE","source":"api","message":"Bad level"}
+{"timestamp":"2024-06-01T10:15:00+00:00","level":"ERROR","source":"","message":"Empty source"}
+{"timestamp":"2024-06-01T10:20:00+00:00","level":"ERROR","source":"db","message":"Recovered"}

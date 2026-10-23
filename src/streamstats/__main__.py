@@ -1,7 +1,9 @@
-from typing import Annotated
 from pathlib import Path
+from typing import Annotated
+
 import typer
-from src.streamstats import parsers, models, errors, report
+
+from src.streamstats import errors, models, parsers, report
 
 app = typer.Typer()
 
@@ -23,7 +25,6 @@ def analyze(
             raise errors.UnsupportedFormat("Неправильный формат файла")
 
         report.json_report(counter, output)
-
 
     except errors.StreamstatsError as error:
         typer.echo(f'Ошибка: {error}', err=True)

@@ -1,14 +1,20 @@
 import csv
 import json
+import os
 from datetime import datetime
 from pathlib import Path
-from src.streamstats import models, errors, analysis
+
+from src.streamstats import analysis, errors, models
+
 
 def parse_csv(path: Path, skip_invalid: bool, counter: models.LogStatistics):
     """Парсер формата CSV: Создание объекта EventModel,
     проверка на ошибки, передача в функцию анализа"""
     try:
         with open(path, "r", encoding="utf-8") as file:
+            if os.path.getsize(path) == 0:
+                raise errors.CliConfigurationError("Пустой файл")
+
             for event_data in csv.DictReader(file):
                 try:
                     time = datetime.fromisoformat(event_data["timestamp"])
@@ -47,6 +53,8 @@ def parse_csv(path: Path, skip_invalid: bool, counter: models.LogStatistics):
         raise errors.CliConfigurationError("Несуществующий файл")
     except csv.Error:
         raise errors.CliConfigurationError("Ошибка формата входного csv файла")
+    except UnicodeDecodeError:
+        raise errors.CliConfigurationError("Ошибка кодировки Unicode")
 
 
 def parse_json(path: Path, skip_invalid: bool, counter: models.LogStatistics):
@@ -54,6 +62,8 @@ def parse_json(path: Path, skip_invalid: bool, counter: models.LogStatistics):
     проверка на ошибки, передача в функцию анализа"""
     try:
         with open(path, "r", encoding="utf-8") as file:
+            if os.path.getsize(path) == 0:
+                raise errors.CliConfigurationError("Пустой файл")
 
             for string in file:
                 event_data = json.loads(string)
@@ -97,3 +107,5 @@ def parse_json(path: Path, skip_invalid: bool, counter: models.LogStatistics):
         raise errors.CliConfigurationError("Несуществующий файл")
     except json.JSONDecodeError:
         raise errors.CliConfigurationError("Не удалось расшифровать входной jsonl файл")
+    except UnicodeDecodeError:
+        raise errors.CliConfigurationError("Ошибка кодировки Unicode")
