@@ -1,13 +1,15 @@
 from typing import Annotated
+from pathlib import Path
 import typer
-from streamstats import parsers, models, errors, report
+from src.streamstats import parsers, models, errors, report
 
 app = typer.Typer()
 
 @app.command()
 def analyze(
-        path: str,
+        path: Annotated[Path, typer.Argument()],
         events_format: Annotated[str, typer.Option('--format')],
+        output: Annotated[Path, typer.Option('--output')],
         skip_invalid: Annotated[bool, typer.Option("--skip-invalid")] = False):
 
     counter = models.LogStatistics()
@@ -18,9 +20,10 @@ def analyze(
         elif events_format == "jsonl":
             parsers.parse_json(path, skip_invalid, counter)
         else:
-            raise errors.CliConfigurationError("Неправильный формат файла")
+            raise errors.UnsupportedFormat("Неправильный формат файла")
 
-        report.console_report(counter)
+        report.json_report(counter, output)
+
 
     except errors.StreamstatsError as error:
         typer.echo(f'Ошибка: {error}', err=True)

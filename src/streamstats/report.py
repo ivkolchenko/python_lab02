@@ -1,24 +1,37 @@
 import typer
-from streamstats import models
+import json
+from src.streamstats import models, errors
+from pathlib import Path
 
-def console_report(counter: models.LogStatistics):
-    typer.echo(f"Общее количество событий: {counter.event_count}")
+def json_report(counter: models.LogStatistics, path: Path):
+    if path.suffix != ".json":
+        raise errors.CliConfigurationError("Неверный формат выходного файла")
 
-    typer.echo("\nКоличество событий по уровням:")
-    for level in counter.levels.keys():
-        typer.echo(f" - {level}: {counter.levels[level]}")
+    try:
+        file = open(path, "r+", encoding="utf-8")
+    except FileNotFoundError:
+        file = open(path, "w", encoding="utf-8")
 
-    typer.echo("\nКоличество событий по источникам:")
-    for source in counter.sources.keys():
-        typer.echo(f" - {source}: {counter.sources[source]}")
+    with file:
+        data = ""
+        if file.mode == "r+":
+            for string in file:
+                data += string
 
-    typer.echo("\nТОП-5 источников уровня ERROR:")
-    for element in counter.error_sources.most_common(5):
-        typer.echo(f" - {element[0]}: {element[1]}")
+        result = []
 
-    typer.echo("\nТОП-5 источников уровня CRITICAL:")
-    for element in counter.critical_sources.most_common(5):
-        typer.echo(f" - {element[0]}: {element[1]}")
+        if data != "":
+            try:
+                result = json.loads(data)
+            except json.JSONDecodeError:
+                raise errors.CliConfigurationError("Не удалось расшифровать выходной json файл")
 
-    typer.echo(f"\nПервая временная метка: {counter.first_timestamp}")
-    typer.echo(f"Последняя временная метка: {counter.last_timestamp}")
+            if isinstance(result, dict):
+                result = [result]
+
+        result.append(counter.to_dict())
+        result = json.dumps(result, ensure_ascii=False, indent=4, default=str)
+
+        file.seek(0)
+        file.write(result)
+        file.truncate()
