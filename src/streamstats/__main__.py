@@ -10,7 +10,7 @@ app = typer.Typer()
 
 @app.command()
 def analyze(
-        path: Annotated[Path, typer.Argument()],
+        paths: Annotated[list[Path], typer.Argument()],
         events_format: Annotated[str, typer.Option('--format')],
         output: Annotated[Path, typer.Option('--output')],
         skip_invalid: Annotated[bool, typer.Option("--skip-invalid")] = False):
@@ -19,12 +19,13 @@ def analyze(
     logger = logging.getLogger(__name__)
 
     try:
-        if events_format == "csv":
-            parsers.parse_csv(path, skip_invalid, counter, logger)
-        elif events_format == "jsonl":
-            parsers.parse_json(path, skip_invalid, counter, logger)
-        else:
-            raise errors.UnsupportedFormat("Неправильный формат файла")
+        for path in paths:
+            if events_format == "csv":
+                parsers.parse_csv(path, skip_invalid, counter, logger)
+            elif events_format == "jsonl":
+                parsers.parse_json(path, skip_invalid, counter, logger)
+            else:
+                raise errors.UnsupportedFormat("Неправильный формат файла")
 
         report.json_report(counter, output)
 
