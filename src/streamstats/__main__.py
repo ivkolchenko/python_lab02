@@ -1,26 +1,33 @@
+import logging
+from pathlib import Path
 from typing import Annotated
+
 import typer
-from streamstats import parsers, models, errors, report
+
+from src.streamstats import errors, models, parsers, report
 
 app = typer.Typer()
 
 @app.command()
 def analyze(
-        path: str,
+        paths: Annotated[list[Path], typer.Argument()],
         events_format: Annotated[str, typer.Option('--format')],
+        output: Annotated[Path, typer.Option('--output')],
         skip_invalid: Annotated[bool, typer.Option("--skip-invalid")] = False):
 
     counter = models.LogStatistics()
+    logger = logging.getLogger(__name__)
 
     try:
-        if events_format == "csv":
-            parsers.parse_csv(path, skip_invalid, counter)
-        elif events_format == "jsonl":
-            parsers.parse_json(path, skip_invalid, counter)
-        else:
-            raise errors.CliConfigurationError("Неправильный формат файла")
+        for path in paths:
+            if events_format == "csv":
+                parsers.parse_csv(path, skip_invalid, counter, logger)
+            elif events_format == "jsonl":
+                parsers.parse_json(path, skip_invalid, counter, logger)
+            else:
+                raise errors.UnsupportedFormat("Неправильный формат файла")
 
-        report.console_report(counter)
+        report.json_report(counter, output)
 
     except errors.StreamstatsError as error:
         typer.echo(f'Ошибка: {error}', err=True)
